@@ -1,0 +1,3 @@
+---
+providerRegex: ^(ktalos1|ktalos2|ktalos3)$
+bypassDnsResolution: true

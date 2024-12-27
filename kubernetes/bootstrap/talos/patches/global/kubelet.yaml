@@ -1,0 +1,7 @@
+machine:
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
+    nodeIP:
+      validSubnets:
+        - 172.18.244.0/24

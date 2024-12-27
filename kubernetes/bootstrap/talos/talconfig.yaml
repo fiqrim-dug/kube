@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
+---
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+talosVersion: v1.9.1
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+kubernetesVersion: v1.32.0
+
+clusterName: "kl-kubernetes"
+endpoint: https://172.18.244.154:6443
+
+clusterPodNets:
+  - "10.69.0.0/16"
+clusterSvcNets:
+  - "10.96.0.0/16"
+
+additionalApiServerCertSans: &sans
+  - "172.18.244.154"
+  - "127.0.0.1"
+additionalMachineCertSans: *sans
+
+# Disable built-in Flannel to use Cilium
+cniConfig:
+  name: none
+
+nodes:
+  - hostname: "ktalos1"
+    ipAddress: "172.18.244.151"
+    installDisk: "/dev/vda"
+    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    controlPlane: true
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "c6:1c:72:9e:c0:6c"
+        dhcp: false
+        addresses:
+          - "172.18.244.151/24"
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "172.18.254.12"
+        mtu: 1500
+        vip:
+          ip: "172.18.244.154"
+  - hostname: "ktalos2"
+    ipAddress: "172.18.244.152"
+    installDisk: "/dev/vda"
+    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    controlPlane: false
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "ea:c2:a6:a0:d6:07"
+        dhcp: false
+        addresses:
+          - "172.18.244.152/24"
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "172.18.254.12"
+        mtu: 1500
+  - hostname: "ktalos3"
+    ipAddress: "172.18.244.153"
+    installDisk: "/dev/vda"
+    talosImageURL: factory.talos.dev/installer/613e1592b2da41ae5e265e8789429f22e121aab91cb4deb6bc3c0b6262961245
+    controlPlane: false
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "a6:e7:11:d6:26:cb"
+        dhcp: false
+        addresses:
+          - "172.18.244.153/24"
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "172.18.254.12"
+        mtu: 1500
+
+# Global patches
+patches:
+  - "@./patches/global/cluster-discovery.yaml"
+  - "@./patches/global/containerd.yaml"
+  - "@./patches/global/disable-search-domain.yaml"
+  - "@./patches/global/dns.yaml"
+  - "@./patches/global/hostdns.yaml"
+  - "@./patches/global/kubelet.yaml"
+  - "@./patches/global/ntp.yaml"
+  - "@./patches/global/openebs-local.yaml"
+  - "@./patches/global/sysctl.yaml"
+
+# Controller patches
+controlPlane:
+  patches:
+    - "@./patches/controller/cluster.yaml"
+    - "@./patches/controller/disable-admission-controller.yaml"
+    - "@./patches/controller/etcd.yaml"
+

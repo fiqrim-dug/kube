@@ -1,0 +1,5 @@
+machine:
+  network:
+    nameservers:
+      - 172.18.255.101
+      - 172.18.255.102
